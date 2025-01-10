@@ -1,5 +1,5 @@
 # Chibi
- 
+
 Chibi is my battlesnake buddy 🐱
 
 ## Author
