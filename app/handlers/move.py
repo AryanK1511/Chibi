@@ -1,37 +1,22 @@
 import random
 from typing import Dict
 
+from app.constants import possible_moves
+from app.core.functions import avoid_own_body, avoid_reverse_movement, avoid_walls
 from app.utils.logger import logger
 
 
 def move_handler(game_state: Dict) -> Dict:
-    is_move_safe = {"up": True, "down": True, "left": True, "right": True}
+    curr_possible_moves = possible_moves.copy()
 
-    my_head = game_state["you"]["body"][0]
-    my_neck = game_state["you"]["body"][1]
+    avoid_reverse_movement(game_state, curr_possible_moves)
+    avoid_walls(game_state, curr_possible_moves)
+    avoid_own_body(game_state, curr_possible_moves)
 
-    if my_neck["x"] < my_head["x"]:
-        is_move_safe["left"] = False
+    print(curr_possible_moves)
+    next_move = (
+        random.choice(list(curr_possible_moves)) if curr_possible_moves else "down"
+    )
+    logger.info(f"Next Move: {next_move}")
 
-    elif my_neck["x"] > my_head["x"]:
-        is_move_safe["right"] = False
-
-    elif my_neck["y"] < my_head["y"]:
-        is_move_safe["down"] = False
-
-    elif my_neck["y"] > my_head["y"]:
-        is_move_safe["up"] = False
-
-    safe_moves = []
-    for move, isSafe in is_move_safe.items():
-        if isSafe:
-            safe_moves.append(move)
-
-    if len(safe_moves) == 0:
-        logger.info(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
-        return {"move": "down"}
-
-    next_move = random.choice(safe_moves)
-
-    logger.info(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}
